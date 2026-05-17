@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>🥟 ВАРЕНИЧНЫЙ УГАР 52 🛸</title>
+    <style>
+        body {
+            background-color: #0b0b1a;
+            color: #ffffff;
+            font-family: 'Arial Black', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px #00ffcc;
+            z-index: 100;
+        }
+        /* Твой вареник-смайлик */
+        .target-varenik {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            font-size: 80px;
+            text-align: center;
+            line-height: 90px;
+            cursor: pointer;
+            transition: transform 0.05s;
+        }
+        /* Враг Кейн */
+        .enemy-caine {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            font-size: 80px;
+            text-align: center;
+            line-height: 100px;
+            cursor: pointer;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        #gameover {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(255, 0, 127, 0.9);
+            z-index: 1000;
+            text-align: center;
+            padding-top: 20vh;
+        }
+        #gameover h1 { font-size: 60px; }
+        .btn-restart {
+            background-color: white; color: #ff007f; border: none;
+            padding: 15px 40px; font-size: 24px; font-weight: bold;
+            cursor: pointer; border-radius: 10px; box-shadow: 0 0 20px #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">ОЧКИ: <span id="score">0</span></div>
+
+    <!-- Заменили картинку на жирный смайлик вареника -->
+    <div id="varenik" class="target-varenik" onclick="clickVarenik()">🥟</div>
+
+    <!-- Враг Кейн -->
+    <div id="caine" class="enemy-caine" onclick="clickCaine()">🦷</div>
+
+    <div id="gameover">
+        <h1>БЕКОНЧИК УПАЛ В РАГДОЛЛ! 🤟😝</h1>
+        <p id="finalScore" style="font-size: 30px;"></p>
+        <button class="btn-restart" onclick="restartGame()">РЕСТАРТ (Кнопка R)</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let gameSpeed = 5;
+        let isGameOver = false;
+
+        let varenik = document.getElementById("varenik");
+        let caine = document.getElementById("caine");
+        let scoreDisplay = document.getElementById("score");
+        let gameOverScreen = document.getElementById("gameover");
+
+        let vX = gameSpeed, vY = gameSpeed;
+        let cX = -gameSpeed, cY = gameSpeed;
+
+        let vXpos = Math.random() * (window.innerWidth - 100);
+        let vYpos = Math.random() * (window.innerHeight - 100);
+        let cXpos = Math.random() * (window.innerWidth - 100);
+        let cYpos = Math.random() * (window.innerHeight - 100);
+
+        function moveObjects() {
+            if (isGameOver) return;
+
+            vXpos += vX; vYpos += vY;
+            if (vXpos <= 0 || vXpos >= window.innerWidth - 90) vX = -vX;
+            if (vYpos <= 0 || vYpos >= window.innerHeight - 90) vY = -vY;
+            varenik.style.left = vXpos + "px"; varenik.style.top = vYpos + "px";
+
+            cXpos += cX; cYpos += cY;
+            if (cXpos <= 0 || cXpos >= window.innerWidth - 100) cX = -cX;
+            if (cYpos <= 0 || cYpos >= window.innerHeight - 100) cY = -cY;
+            caine.style.left = cXpos + "px"; caine.style.top = cYpos + "px";
+
+            requestAnimationFrame(moveObjects);
+        }
+
+        function clickVarenik() {
+            if (isGameOver) return;
+            score += 52;
+            scoreDisplay.innerText = score;
+            
+            gameSpeed += 0.5;
+            vX = vX > 0 ? gameSpeed : -gameSpeed;
+            vY = vY > 0 ? gameSpeed : -gameSpeed;
+            cX = cX > 0 ? gameSpeed : -gameSpeed;
+            cY = cY > 0 ? gameSpeed : -gameSpeed;
+
+            vXpos = Math.random() * (window.innerWidth - 100);
+            vYpos = Math.random() * (window.innerHeight - 100);
+        }
+
+        function clickCaine() {
+            isGameOver = true;
+            document.getElementById("finalScore").innerText = "Ты собрал на " + score + " очков пельменей!";
+            gameOverScreen.style.display = "block";
+        }
+
+        function restartGame() {
+            score = 0; gameSpeed = 5; isGameOver = false;
+            vX = gameSpeed; vY = gameSpeed; cX = -gameSpeed; cY = gameSpeed;
+            scoreDisplay.innerText = score;
+            gameOverScreen.style.display = "none";
+            vXpos = Math.random() * (window.innerWidth - 100);
+            vYpos = Math.random() * (window.innerHeight - 100);
+            cXpos = Math.random() * (window.innerWidth - 100);
+            cYpos = Math.random() * (window.innerHeight - 100);
+            moveObjects();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r' || e.key.toLowerCase() === 'к') {
+                restartGame();
+            }
+        });
+
+        moveObjects();
+    </script>
+</body>
+</html>
