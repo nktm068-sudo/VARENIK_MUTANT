@@ -22,7 +22,6 @@
             text-shadow: 0 0 10px #00ffcc;
             z-index: 100;
         }
-        /* Твой вареник-смайлик */
         .target-varenik {
             position: absolute;
             width: 90px;
@@ -31,9 +30,7 @@
             text-align: center;
             line-height: 90px;
             cursor: pointer;
-            transition: transform 0.05s;
         }
-        /* Враг Кейн */
         .enemy-caine {
             position: absolute;
             width: 100px;
@@ -42,7 +39,7 @@
             text-align: center;
             line-height: 100px;
             cursor: pointer;
-            animation: spin 1s linear infinite;
+            animation: spin 1.5s linear infinite;
         }
         @keyframes spin {
             100% { transform: rotate(360deg); }
@@ -68,10 +65,7 @@
 
     <div id="ui">ОЧКИ: <span id="score">0</span></div>
 
-    <!-- Заменили картинку на жирный смайлик вареника -->
     <div id="varenik" class="target-varenik" onclick="clickVarenik()">🥟</div>
-
-    <!-- Враг Кейн -->
     <div id="caine" class="enemy-caine" onclick="clickCaine()">🦷</div>
 
     <div id="gameover">
@@ -82,7 +76,8 @@
 
     <script>
         let score = 0;
-        let gameSpeed = 5;
+        let baseSpeed = 2.5; // Базовая скорость игры
+        let currentSpeed = baseSpeed; // Текущая скорость вареника
         let isGameOver = false;
 
         let varenik = document.getElementById("varenik");
@@ -90,22 +85,38 @@
         let scoreDisplay = document.getElementById("score");
         let gameOverScreen = document.getElementById("gameover");
 
-        let vX = gameSpeed, vY = gameSpeed;
-        let cX = -gameSpeed, cY = gameSpeed;
+        let vX = currentSpeed, vY = currentSpeed;
+        let cX = -baseSpeed, cY = baseSpeed;
 
         let vXpos = Math.random() * (window.innerWidth - 100);
         let vYpos = Math.random() * (window.innerHeight - 100);
         let cXpos = Math.random() * (window.innerWidth - 100);
         let cYpos = Math.random() * (window.innerHeight - 100);
 
+        // ХАК С КУРСОРОМ: когда мышка наводится на вареник
+        varenik.addEventListener("mouseenter", function() {
+            currentSpeed = baseSpeed + 1; // Увеличиваем скорость на 1!
+            vX = vX > 0 ? currentSpeed : -currentSpeed;
+            vY = vY > 0 ? currentSpeed : -currentSpeed;
+        });
+
+        // ХАК С КУРСОРОМ: когда мышка уходит с вареника
+        varenik.addEventListener("mouseleave", function() {
+            currentSpeed = baseSpeed; // Возвращаем обычную скорость
+            vX = vX > 0 ? currentSpeed : -currentSpeed;
+            vY = vY > 0 ? currentSpeed : -currentSpeed;
+        });
+
         function moveObjects() {
             if (isGameOver) return;
 
+            // Двигаем Вареник с учётом изменённой скорости
             vXpos += vX; vYpos += vY;
             if (vXpos <= 0 || vXpos >= window.innerWidth - 90) vX = -vX;
             if (vYpos <= 0 || vYpos >= window.innerHeight - 90) vY = -vY;
             varenik.style.left = vXpos + "px"; varenik.style.top = vYpos + "px";
 
+            // Двигаем Кейна со стандартной базовой скоростью
             cXpos += cX; cYpos += cY;
             if (cXpos <= 0 || cXpos >= window.innerWidth - 100) cX = -cX;
             if (cYpos <= 0 || cYpos >= window.innerHeight - 100) cY = -cY;
@@ -119,11 +130,13 @@
             score += 52;
             scoreDisplay.innerText = score;
             
-            gameSpeed += 0.5;
-            vX = vX > 0 ? gameSpeed : -gameSpeed;
-            vY = vY > 0 ? gameSpeed : -gameSpeed;
-            cX = cX > 0 ? gameSpeed : -gameSpeed;
-            cY = cY > 0 ? gameSpeed : -gameSpeed;
+            baseSpeed += 0.15; // Плавный разгон игры при каждом попадании
+            currentSpeed = baseSpeed + 1; // Сразу накидываем +1, так как курсор в этот момент на варенике
+            
+            vX = vX > 0 ? currentSpeed : -currentSpeed;
+            vY = vY > 0 ? currentSpeed : -currentSpeed;
+            cX = cX > 0 ? baseSpeed : -baseSpeed;
+            cY = cY > 0 ? baseSpeed : -baseSpeed;
 
             vXpos = Math.random() * (window.innerWidth - 100);
             vYpos = Math.random() * (window.innerHeight - 100);
@@ -136,8 +149,8 @@
         }
 
         function restartGame() {
-            score = 0; gameSpeed = 5; isGameOver = false;
-            vX = gameSpeed; vY = gameSpeed; cX = -gameSpeed; cY = gameSpeed;
+            score = 0; baseSpeed = 2.5; currentSpeed = baseSpeed; isGameOver = false;
+            vX = baseSpeed; vY = baseSpeed; cX = -baseSpeed; cY = baseSpeed;
             scoreDisplay.innerText = score;
             gameOverScreen.style.display = "none";
             vXpos = Math.random() * (window.innerWidth - 100);
